@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JEE Main College Predictor 2025</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.0/dist/pdf-lib.min.js"></script>
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+    import { getDatabase, ref, push } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQXmnOBTEQgqAZT9Dyjl3wJITgau54bCQ",
+      authDomain: "x-and-y-91497.firebaseapp.com",
+      projectId: "x-and-y-91497",
+      storageBucket: "x-and-y-91497.firebasestorage.app",
+      messagingSenderId: "270374509466",
+      appId: "1:270374509466:web:51f3629f47745b8a8e3823",
+      measurementId: "G-QJB9GEH5ZN",
+      databaseURL: "https://x-and-y-91497-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    window.db = db;
+    window.push = push;
+    window.ref = ref;
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #e6eef6);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      color: #1a2a44;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    .app-container {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #e0e4e8;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .top-section {
+      background: #ffffff;
+      padding: 0px;
+      text-align: center;
+      border-bottom: 1px solid #e0e4e8;
+    }
+    .carousel {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .carousel-inner {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+    .carousel-item {
+      flex: 0 0 100%;
+    }
+    .carousel-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .logo {
+      max-width: 200px;
+      height: auto;
+      margin-bottom: 15px;
+    }
+    .app-header {
+      background: #2f4461;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-weight: 600;
+    }
+    .subtitle {
+      opacity: 0.9;
+    }
+    .content {
+      padding: 20px;
+      overflow-y: auto;
+    }
+    label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 6px;
+      color: #344563;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border: 1px solid #d1d9e6;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      background: #f8fafc;
+      transition: border-color 0.2s ease;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+    .btn {
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-next {
+      background-color: #1a73e8;
+      color: white;
+    }
+    .btn-next:hover {
+      background-color: #1557b0;
+    }
+    .btn-prev {
+      background-color: #e8ecef;
+      color: #344563;
+    }
+    .btn-prev:hover {
+      background-color: #d1d9e6;
+    }
+    .btn-clear {
+      background-color: #ff4d4f;
+      color: white;
+      padding: 8px 16px;
+    }
+    .btn-clear:hover {
+      background-color: #d93638;
+    }
+    .btn-search-again {
+      background-color: #34c759;
+      color: white;
+    }
+    .btn-search-again:hover {
+      background-color: #2ba844;
+    }
+    .btn-download-pdf {
+      background: linear-gradient(135deg, #ff6f61, #de4d4d);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 111, 97, 0.4);
+    }
+    .btn-download-pdf:hover {
+      background: linear-gradient(135deg, #de4d4d, #ff6f61);
+      transform: scale(1.05);
+    }
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .step {
+      display: none;
+      transition: opacity 0.3s ease;
+    }
+    .step.active {
+      display: block;
+      opacity: 1;
+    }
+    .hidden {
+      display: none;
+    }
+    #result {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e4e8;
+    }
+    .filter-section {
+      margin-bottom: 20px;
+    }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .filter-item {
+      flex: 1;
+      min-width: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e0e4e8;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #1a73e8;
+      font-weight: 500;
+    }
+    .error {
+      color: #d93025;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    @media (min-width: 769px) {
+      .app-container {
+        max-width: 900px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      }
+      .top-section {
+        padding: 0px;
+      }
+      .logo {
+        max-width: 250px;
+      }
+      .app-header {
+        padding: 30px;
+      }
+      h1 {
+        font-size: 2.2rem;
+      }
+      .subtitle {
+        font-size: 1rem;
+      }
+      .content {
+        padding: 30px;
+        max-height: calc(100vh - 120px);
+      }
+      .btn {
+        width: auto;
+        padding: 12px 30px;
+      }
+      .btn-next:hover {
+        transform: translateX(4px);
+      }
+      .btn-prev:hover {
+        transform: translateX(-4px);
+      }
+      .btn-search-again:hover, .btn-download-pdf:hover {
+        transform: scale(1.05);
+      }
+      .filter-row {
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+        align-items: stretch;
+      }
+      .app-container {
+        max-width: 100%;
+        border-radius: 0;
+        border: none;
+        height: 100vh;
+      }
+      .top-section {
+        padding: 0px;
+      }
+      .logo {
+        max-width: 150px;
+      }
+      .carousel {
+        max-width: 100%;
+      }
+      .app-header {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .subtitle {
+        font-size: 0.8rem;
+      }
+      .content {
+        padding: 15px;
+        max-height: calc(100vh - 80px);
+      }
+      .btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        width: 120px;
+      }
+      .btn-search-again, .btn-download-pdf {
+        width: 100%;
+      }
+      .filter-row {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .btn-clear {
+        padding: 6px 12px;
+        width: auto;
+      }
+      input, select {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="top-section">
+      <div class="carousel">
+        <div class="carousel-inner">
+          <div class="carousel-item">
+            <img src="banner.webp" alt="Advertisement 1">
+          </div>
+          <div class="carousel-item">
+            <img src="ad2.webp" alt="Advertisement 2">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="app-header">
+      <h1>JEE Main College Predictor 2025</h1>
+      <p class="subtitle">Based on JoSAA 2024 Round 5 Cutoff Data</p>
+    </div>
+    <div class="content">
+      <div class="step active" id="step1">
+        <label for="quota">Select Quota:</label>
+        <select id="quota">
+          <option value="">-- Select Quota --</option>
+          <option value="HS">Home State (HS)</option>
+          <option value="OS">Other State (OS)</option>
+        </select>
+        <p class="error" id="quota-error">This field is required.</p>
+        <div class="button-group">
+          <div></div>
+          <button class="btn btn-next" onclick="goToNext(1)">Next <span>→</span></button>
+        </div>
+      </div>
+
+      <div class="step" id="step2">
+        <div id="hsCollege" class="hidden">
+          <label for="college">Select College:</label>
+          <select id="college"></select>
+        </div>
+        <label for="category">Select Category:</label>
+        <select id="category" onchange="updateRankInputs()"></select>
+        <p class="error" id="category-error">This field is required.</p>
+        <label for="gender">Select Gender:</label>
+        <select id="gender">
+          <option value="">-- Select Gender --</option>
+          <option value="Gender-Neutral">Gender-Neutral</option>
+          <option value="Female-only (including Supernumerary)">Female Only</option>
+        </select>
+        <p class="error" id="gender-error">This field is required.</p>
+        <div class="button-group">
+          <button class="btn btn-prev" onclick="goToPrev(0)"><span>←</span> Previous</button>
+          <button class="btn btn-next" onclick="goToNext(2)">Next <span>→</span></button>
+        </div>
+      </div>
+
+      <div class="step" id="step3">
+        <label for="rank">Enter Your JEE Category Rank:</label>
+        <input type="number" id="rank" placeholder="Enter your category rank" />
+        <p class="error" id="rank-error">Please enter a valid rank.</p>
+        <div id="openRankSection" class="hidden">
+          <label for="open-rank">Enter Your JEE Open Rank:</label>
+          <input type="number" id="open-rank" placeholder="Enter your open rank" />
+          <p class="error" id="open-rank-error">Please enter a valid open rank.</p>
+        </div>
+        <div class="button-group">
+          <button class="btn btn-prev" onclick="goToPrev(1)"><span>←</span> Previous</button>
+          <button class="btn btn-next" onclick="predictSeats()">Show Seats</button>
+        </div>
+      </div>
+
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    let allData = [];
+    let filteredData = [];
+    let currentCollegeFilter = '';
+    let currentProgramFilter = '';
+
+
+
+// Carousel JavaScript for continuous right-only sliding with touch/swipe support
+let currentSlide = 0;
+const carouselInner = document.querySelector('.carousel-inner');
+const slides = document.querySelectorAll('.carousel-item');
+const totalSlides = slides.length;
+let isDragging = false;
+let touchStartX = 0;
+let touchEndX = 0;
+let autoSlide;
+
+// Ensure we have at least 2 slides
+if (totalSlides < 2) {
+  console.error('Carousel requires at least 2 slides');
+}
+
+// Clone slides for seamless looping
+document.addEventListener('DOMContentLoaded', () => {
+  // Clone the first set of slides and append them
+  slides.forEach(slide => {
+    const clone = slide.cloneNode(true);
+    carouselInner.appendChild(clone);
+  });
+
+  // Set initial position
+  updateCarouselPosition(false);
+});
+
+// Update carousel position
+function updateCarouselPosition(useTransition = true) {
+  carouselInner.style.transition = useTransition ? 'transform 0.5s ease' : 'none';
+  carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
+}
+
+// Move to the next slide (right)
+function moveRight() {
+  currentSlide++;
+  updateCarouselPosition(true);
+
+  // Reset to start when reaching the cloned slides
+  if (currentSlide >= totalSlides) {
+    setTimeout(() => {
+      carouselInner.style.transition = 'none';
+      currentSlide = 0;
+      updateCarouselPosition(false);
+    }, 500); // Match transition duration
+  }
+}
+
+// Touch/swipe event handlers
+carouselInner.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+  isDragging = true;
+  clearInterval(autoSlide); // Pause auto-slide
+  carouselInner.style.transition = 'none';
+});
+
+carouselInner.addEventListener('touchmove', (e) => {
+  if (!isDragging) return;
+  touchEndX = e.changedTouches[0].screenX;
+  const deltaX = touchEndX - touchStartX;
+  const translateX = -currentSlide * 100 + (deltaX / carouselInner.offsetWidth) * 100;
+  carouselInner.style.transform = `translateX(${translateX}%)`;
+});
+
+carouselInner.addEventListener('touchend', () => {
+  if (!isDragging) return;
+  isDragging = false;
+  const deltaX = touchEndX - touchStartX;
+
+  // Only allow right swipe (move to next slide)
+  if (deltaX < -50) {
+    moveRight();
+  } else {
+    // Snap back to current slide
+    updateCarouselPosition(true);
+  }
+
+  // Resume auto-slide
+  autoSlide = setInterval(moveRight, 3500);
+});
+
+// Prevent default scrolling during swipe
+carouselInner.addEventListener('touchmove', (e) => {
+  if (isDragging) {
+    e.preventDefault();
+  }
+});
+
+// Start auto-sliding
+autoSlide = setInterval(moveRight, 3500);
+
+
+    async function loadCSV(file) {
+      try {
+        const response = await fetch(file);
+        if (!response.ok) throw new Error('Failed to load CSV file');
+        const text = await response.text();
+        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+        return parsed.data.map(row => ({
+          Institute: row["Institute"]?.trim(),
+          Program: row["Academic Program Name"]?.trim(),
+          Quota: row["Quota"]?.trim(),
+          Category: row["Seat Type"]?.trim(),
+          Gender: row["Gender"]?.trim(),
+          ClosingRank: parseInt(row["Closing Rank"])
+        })).filter(row => !isNaN(row.ClosingRank));
+      } catch (error) {
+        console.error('Error loading CSV:', error);
+        document.getElementById('quota-error').textContent = 'Error loading data. Please try again.';
+        document.getElementById('quota-error').style.display = 'block';
+        return [];
+      }
+    }
+
+    function updateRankInputs() {
+      const category = document.getElementById('category').value;
+      const rankInput = document.getElementById('rank');
+      const openRankSection = document.getElementById('openRankSection');
+      if (category && category !== 'OPEN') {
+        openRankSection.classList.remove('hidden');
+      } else {
+        openRankSection.classList.add('hidden');
+      }
+      rankInput.placeholder = category ? `Enter your ${category} rank` : "Enter your rank";
+    }
+
+    async function goToNext(step) {
+      if (step === 1) {
+        const quota = document.getElementById('quota').value;
+        if (!quota) {
+          document.getElementById('quota-error').style.display = 'block';
+          return;
+        }
+        document.getElementById('quota-error').style.display = 'none';
+        const file = quota === 'HS' ? '2024Round5_HS_sorted.csv' : '2024Round5_OS_sorted.csv';
+        allData = await loadCSV(file);
+        if (allData.length === 0) return;
+        populateCategories(allData);
+        if (quota === 'HS') {
+          document.getElementById('hsCollege').classList.remove('hidden');
+          populateColleges(allData);
+        } else {
+          document.getElementById('hsCollege').classList.add('hidden');
+        }
+      } else if (step === 2) {
+        const category = document.getElementById('category').value;
+        const gender = document.getElementById('gender').value;
+        let hasError = false;
+        if (!category) {
+          document.getElementById('category-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('category-error').style.display = 'none';
+        }
+        if (!gender) {
+          document.getElementById('gender-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('gender-error').style.display = 'none';
+        }
+        if (hasError) return;
+        updateRankInputs();
+      }
+      document.querySelectorAll('.step').forEach((el, idx) => {
+        el.style.opacity = '0';
+        el.classList.toggle('active', idx === step);
+        if (idx === step) setTimeout(() => el.style.opacity = '1', 10);
+      });
+    }
+
+    function goToPrev(step) {
+      document.getElementById('result').innerHTML = '';
+      document.querySelectorAll('.step').forEach((el, idx) => {
+        el.style.opacity = '0';
+        el.classList.toggle('active', idx === step);
+        if (idx === step) setTimeout(() => el.style.opacity = '1', 10);
+      });
+    }
+
+    function goToHome() {
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('quota').value = '';
+      document.getElementById('category').value = '';
+      document.getElementById('gender').value = '';
+      document.getElementById('rank').value = '';
+      document.getElementById('open-rank').value = '';
+      document.getElementById('rank').placeholder = "Enter your rank";
+      document.getElementById('openRankSection').classList.add('hidden');
+      if (document.getElementById('college')) document.getElementById('college').value = '';
+      document.getElementById('hsCollege').classList.add('hidden');
+      allData = [];
+      filteredData = [];
+      currentCollegeFilter = '';
+      currentProgramFilter = '';
+      document.querySelectorAll('.step').forEach((el, idx) => {
+        el.style.opacity = '0';
+        el.classList.toggle('active', idx === 0);
+        if (idx === 0) setTimeout(() => el.style.opacity = '1', 10);
+      });
+    }
+
+    function populateColleges(data) {
+      const collegeSet = new Set(data.map(row => row.Institute));
+      const collegeSelect = document.getElementById('college');
+      collegeSelect.innerHTML = '<option value="">-- All Colleges --</option>';
+      [...collegeSet].sort().forEach(college => {
+        const option = document.createElement('option');
+        option.value = college;
+        option.textContent = college;
+        collegeSelect.appendChild(option);
+      });
+    }
+
+    function populateCategories(data) {
+      const categorySet = new Set(data.map(row => row.Category));
+      const categorySelect = document.getElementById('category');
+      categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+      [...categorySet].sort().forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+      });
+    }
+
+    function storeRankData(category, rank, openRank) {
+      if (category !== 'OPEN' && rank && openRank) {
+        const data = {
+          category: category,
+          categoryRank: parseInt(rank),
+          openRank: parseInt(openRank),
+          timestamp: Date.now()
+        };
+        window.push(window.ref(window.db, 'rankData'), data)
+          .then(() => console.log('Rank data stored successfully'))
+          .catch(error => console.error('Error storing rank data:', error));
+      } else if (category === 'OPEN') {
+        console.log('OPEN category selected; data not stored in Firebase.');
+      }
+    }
+
+    function predictSeats() {
+      const rank = parseInt(document.getElementById('rank').value);
+      const openRank = parseInt(document.getElementById('open-rank').value) || null;
+      const quota = document.getElementById('quota').value;
+      const category = document.getElementById('category').value;
+      const gender = document.getElementById('gender').value;
+      const selectedCollege = document.getElementById('college')?.value || '';
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      if (isNaN(rank)) {
+        document.getElementById('rank-error').style.display = 'block';
+        return;
+      }
+      document.getElementById('rank-error').style.display = 'none';
+      if (category !== 'OPEN' && isNaN(openRank)) {
+        document.getElementById('open-rank-error').style.display = 'block';
+        return;
+      }
+      document.getElementById('open-rank-error').style.display = 'none';
+
+      storeRankData(category, rank, openRank);
+
+      filteredData = allData.filter(row =>
+        row.ClosingRank >= rank &&
+        row.Category === category &&
+        row.Gender === gender &&
+        (quota === 'OS' || !selectedCollege || row.Institute === selectedCollege)
+      ).sort((a, b) => a.ClosingRank - b.ClosingRank);
+
+      currentCollegeFilter = '';
+      currentProgramFilter = '';
+      renderResults(filteredData);
+    }
+
+    function renderResults(data) {
+      const resultDiv = document.getElementById('result');
+      if (!data.length) {
+        resultDiv.innerHTML = '<p>No seats found matching your filters.</p>';
+        return;
+      }
+
+      const collegeSet = new Set(data.map(row => row.Institute));
+      const programSet = currentCollegeFilter
+        ? new Set(data.filter(row => row.Institute === currentCollegeFilter).map(row => row.Program))
+        : new Set(data.map(row => row.Program));
+
+      let html = `
+        <div class="button-group">
+          <button class="btn btn-search-again" onclick="goToHome()">Search Again</button>
+          <button class="btn btn-download-pdf" onclick="downloadPDF()">Download PDF</button>
+        </div>
+        <br>
+        <div class="filter-section">
+          <div class="filter-row">
+            <div class="filter-item">
+              <label for="filter-college">Filter by College:</label>
+              <select id="filter-college" onchange="applyFilters()">
+                <option value="">-- All Colleges --</option>
+                ${[...collegeSet].sort().map(college => `<option value="${college}" ${college === currentCollegeFilter ? 'selected' : ''}>${college}</option>`).join('')}
+              </select>
+            </div>
+            ${currentCollegeFilter ? `<button class="btn btn-clear" onclick="clearCollegeFilter()">Clear</button>` : ''}
+          </div>
+          <div class="filter-row">
+            <div class="filter-item">
+              <label for="filter-program">Filter by Branch:</label>
+              <select id="filter-program" onchange="applyFilters()">
+                <option value="">-- All Branches --</option>
+                ${[...programSet].sort().map(program => `<option value="${program}" ${program === currentProgramFilter ? 'selected' : ''}>${program}</option>`).join('')}
+              </select>
+            </div>
+            ${currentProgramFilter ? `<button class="btn btn-clear" onclick="clearProgramFilter()">Clear</button>` : ''}
+          </div>
+        </div>
+        <table>
+          <tr><th>Institute</th><th>Program</th><th>Closing Rank</th></tr>
+      `;
+      data.forEach(row => {
+        html += `<tr><td>${row.Institute}</td><td>${row.Program}</td><td>${row.ClosingRank}</td></tr>`;
+      });
+      html += `</table>`;
+      resultDiv.innerHTML = html;
+    }
+
+    function applyFilters() {
+      const filterCollege = document.getElementById('filter-college').value;
+      const filterProgram = document.getElementById('filter-program').value;
+
+      currentCollegeFilter = filterCollege;
+      currentProgramFilter = filterProgram;
+
+      let filtered = filteredData;
+      if (currentCollegeFilter) {
+        filtered = filtered.filter(row => row.Institute === currentCollegeFilter);
+      }
+      if (currentProgramFilter) {
+        filtered = filtered.filter(row => row.Program === currentProgramFilter);
+      }
+
+      renderResults(filtered);
+    }
+
+    function clearCollegeFilter() {
+      currentCollegeFilter = '';
+      document.getElementById('filter-college').value = '';
+      applyFilters();
+    }
+
+    function clearProgramFilter() {
+      currentProgramFilter = '';
+      document.getElementById('filter-program').value = '';
+      applyFilters();
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const { PDFDocument } = window.PDFLib;
+      const doc = new jsPDF();
+      const quota = document.getElementById('quota').value;
+      const category = document.getElementById('category').value;
+      const gender = document.getElementById('gender').value;
+      const rank = document.getElementById('rank').value;
+      const openRank = document.getElementById('open-rank').value || 'N/A';
+      const college = document.getElementById('college')?.value || 'All Colleges';
+
+      try {
+        // Generate the college predictor PDF
+        doc.setFontSize(20);
+        doc.setTextColor(26, 115, 232);
+        doc.text("JEE Main College Predictor 2025", 105, 20, { align: "center" });
+        doc.setFontSize(12);
+        doc.setTextColor(100);
+        doc.text("Based on JoSAA 2024 Round 5 Cutoff Data", 105, 28, { align: "center" });
+
+        doc.setFontSize(14);
+        doc.setTextColor(0);
+        doc.text("Your Details", 20, 40);
+        doc.setFontSize(10);
+        doc.text(`Quota: ${quota === 'HS' ? 'Home State' : 'Other State'}`, 20, 50);
+        doc.text(`Category: ${category}`, 20, 58);
+        doc.text(`Gender: ${gender}`, 20, 66);
+        doc.text(`Category Rank: ${rank}`, 20, 74);
+        if (category !== 'OPEN') doc.text(`Open Rank: ${openRank}`, 20, 82);
+        if (quota === 'HS') doc.text(`Selected College: ${college}`, 20, category !== 'OPEN' ? 90 : 82);
+
+        doc.setFontSize(14);
+        doc.text("Predicted Colleges", 20, category !== 'OPEN' ? 100 : 92);
+        doc.setFontSize(10);
+        const tableData = filteredData.map(row => [row.Institute, row.Program, row.ClosingRank]);
+        doc.autoTable({
+          startY: category !== 'OPEN' ? 108 : 100,
+          head: [['Institute', 'Program', 'Closing Rank']],
+          body: tableData,
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: [26, 115, 232], textColor: 255 },
+          alternateRowStyles: { fillColor: [240, 244, 248] }
+        });
+
+        // Get the generated PDF as a byte array
+        const mainPdfBytes = doc.output('arraybuffer');
+
+        // Load the main PDF and ad PDF
+        const mainPdfDoc = await PDFDocument.load(mainPdfBytes);
+        const adPdfResponse = await fetch('ad.pdf');
+        if (!adPdfResponse.ok) throw new Error('Failed to load ad.pdf');
+        const adPdfBytes = await adPdfResponse.arrayBuffer();
+        const adPdfDoc = await PDFDocument.load(adPdfBytes);
+
+        // Create a new PDF document to merge both
+        const mergedPdfDoc = await PDFDocument.create();
+
+        // Copy pages from main PDF
+        const mainPages = await mergedPdfDoc.copyPages(mainPdfDoc, mainPdfDoc.getPageIndices());
+        mainPages.forEach(page => mergedPdfDoc.addPage(page));
+
+        // Copy pages from ad PDF
+        const adPages = await mergedPdfDoc.copyPages(adPdfDoc, adPdfDoc.getPageIndices());
+        adPages.forEach(page => mergedPdfDoc.addPage(page));
+
+        // Save the merged PDF
+        const mergedPdfBytes = await mergedPdfDoc.save();
+        const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'JEE_College_Predictor_2025.pdf';
+        link.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Failed to generate PDF. Please try again.');
+      }
+    }
+  </script>
+</body>
+</html>

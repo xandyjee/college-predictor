@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JEE Rank Data Admin Dashboard</title>
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+    import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQXmnOBTEQgqAZT9Dyjl3wJITgau54bCQ",
+      authDomain: "x-and-y-91497.firebaseapp.com",
+      projectId: "x-and-y-91497",
+      storageBucket: "x-and-y-91497.firebasestorage.app",
+      messagingSenderId: "270374509466",
+      appId: "1:270374509466:web:51f3629f47745b8a8e3823",
+      measurementId: "G-QJB9GEH5ZN",
+      databaseURL: "https://x-and-y-91497-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    window.db = db;
+    window.ref = ref;
+    window.onValue = onValue;
+  </script>
+  <!-- Chart.js for Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      color: #333;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .dashboard-container {
+      width: 100%;
+      max-width: 1200px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 30px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .subtitle {
+      font-size: 1rem;
+      color: #666;
+      margin-top: 5px;
+    }
+    .filter-section {
+      margin-bottom: 30px;
+    }
+    .filter-section label {
+      font-weight: 500;
+      margin-right: 10px;
+      color: #333;
+    }
+    .filter-section select {
+      padding: 8px 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 5px;
+      font-size: 1rem;
+      background: #f9f9f9;
+      color: #333;
+      cursor: pointer;
+    }
+    .stats-section, .data-section {
+      margin-bottom: 40px;
+    }
+    .stats-section h2, .data-section h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+    .chart-container {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #e0e0e0;
+      background: #fff;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    th {
+      background: #f0f0f0;
+      font-weight: 500;
+      color: #333;
+    }
+    td {
+      color: #555;
+    }
+    .error {
+      color: #e63946;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      .dashboard-container {
+        padding: 20px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .subtitle {
+        font-size: 0.9rem;
+      }
+      .stats-section h2, .data-section h2 {
+        font-size: 1.3rem;
+      }
+      .filter-section select {
+        width: 100%;
+        margin-top: 10px;
+      }
+      th, td {
+        padding: 10px;
+        font-size: 0.9rem;
+      }
+      .chart-container {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="header">
+      <h1>JEE Rank Data Admin Dashboard</h1>
+      <p class="subtitle">Real-time Category vs. Open Rank Analysis</p>
+    </div>
+
+    <div class="filter-section">
+      <label for="categoryFilter">Select Category:</label>
+      <select id="categoryFilter" onchange="updateDashboard()"></select>
+    </div>
+
+    <div class="stats-section">
+      <h2>Rank Comparison</h2>
+      <div class="chart-container">
+        <canvas id="rankChart"></canvas>
+      </div>
+    </div>
+
+    <div class="data-section">
+      <h2>Data Entries</h2>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Category Rank</th>
+            <th>Open Rank</th>
+          </tr>
+        </thead>
+        <tbody id="dataTableBody"></tbody>
+      </table>
+      <p id="errorMessage" class="error" style="display: none;">No data available yet.</p>
+    </div>
+  </div>
+
+  <script>
+    let chartInstance = null;
+    let allRankData = [];
+
+    function fetchAndDisplayData() {
+      const rankRef = window.ref(window.db, 'rankData');
+      window.onValue(rankRef, (snapshot) => {
+        const data = snapshot.val();
+        const tableBody = document.getElementById('dataTableBody');
+        const errorMessage = document.getElementById('errorMessage');
+        const categoryFilter = document.getElementById('categoryFilter');
+        tableBody.innerHTML = '';
+
+        if (!data) {
+          errorMessage.style.display = 'block';
+          updateChart([]);
+          return;
+        }
+
+        errorMessage.style.display = 'none';
+        allRankData = Object.values(data).sort((a, b) => a.categoryRank - b.categoryRank); // Sort by categoryRank ascending
+        const categories = [...new Set(allRankData.map(entry => entry.category))].sort();
+        categoryFilter.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        
+        // Set default category to the first one
+        categoryFilter.value = categories[0];
+        updateDashboard();
+      }, (error) => {
+        console.error('Error fetching data:', error);
+        document.getElementById('errorMessage').textContent = 'Error loading data.';
+        document.getElementById('errorMessage').style.display = 'block';
+      });
+    }
+
+    function updateDashboard() {
+      const selectedCategory = document.getElementById('categoryFilter').value;
+      const tableBody = document.getElementById('dataTableBody');
+      tableBody.innerHTML = '';
+
+      const filteredData = allRankData.filter(entry => entry.category === selectedCategory);
+
+      filteredData.forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${entry.category}</td>
+          <td>${entry.categoryRank}</td>
+          <td>${entry.openRank}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      updateChart(filteredData);
+    }
+
+    function updateChart(data) {
+      const ctx = document.getElementById('rankChart').getContext('2d');
+      const categoryRanks = data.map(entry => entry.categoryRank);
+      const openRanks = data.map(entry => entry.openRank);
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(() => ''), // Empty labels for X-axis
+          datasets: [
+            {
+              label: 'Category Rank',
+              data: categoryRanks,
+              borderColor: '#1a73e8',
+              backgroundColor: 'rgba(26, 115, 232, 0.1)',
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#1a73e8'
+            },
+            {
+              label: 'Open Rank',
+              data: openRanks,
+              borderColor: '#e63946',
+              backgroundColor: 'rgba(230, 57, 70, 0.1)',
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#e63946'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Rank',
+                color: '#333',
+                font: { size: 12 }
+              },
+              ticks: { color: '#666' }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Data Entries',
+                color: '#333',
+                font: { size: 12 }
+              },
+              ticks: { display: false } // Hide X-axis labels
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#333', font: { size: 12 } }
+            },
+            title: {
+              display: true,
+              text: 'Category vs Open Rank Trends',
+              color: '#1a1a1a',
+              font: { size: 16 }
+            }
+          }
+        }
+      });
+    }
+
+    // Fetch and display data on page load
+    document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
+  </script>
+</body>
+</html>
