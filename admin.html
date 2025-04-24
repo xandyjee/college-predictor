@@ -126,6 +126,11 @@
       text-align: center;
       margin-top: 20px;
     }
+    .entry-count {
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 15px;
+    }
     @media (max-width: 768px) {
       body {
         padding: 15px;
@@ -153,6 +158,9 @@
       .chart-container {
         padding: 15px;
       }
+      .entry-count {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
@@ -177,6 +185,7 @@
 
     <div class="data-section">
       <h2>Data Entries</h2>
+      <p id="entryCount" class="entry-count">Total Entries: 0</p>
       <table id="dataTable">
         <thead>
           <tr>
@@ -211,12 +220,18 @@
         }
 
         errorMessage.style.display = 'none';
-        allRankData = Object.values(data).sort((a, b) => a.categoryRank - b.categoryRank); // Sort by categoryRank ascending
+        allRankData = Object.values(data).sort((a, b) => a.categoryRank - b.categoryRank);
         const categories = [...new Set(allRankData.map(entry => entry.category))].sort();
+        const currentCategory = categoryFilter.value;
+
         categoryFilter.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-        
-        // Set default category to the first one
-        categoryFilter.value = categories[0];
+
+        if (currentCategory && categories.includes(currentCategory)) {
+          categoryFilter.value = currentCategory;
+        } else {
+          categoryFilter.value = categories[0] || '';
+        }
+
         updateDashboard();
       }, (error) => {
         console.error('Error fetching data:', error);
@@ -228,9 +243,13 @@
     function updateDashboard() {
       const selectedCategory = document.getElementById('categoryFilter').value;
       const tableBody = document.getElementById('dataTableBody');
+      const entryCount = document.getElementById('entryCount');
       tableBody.innerHTML = '';
 
       const filteredData = allRankData.filter(entry => entry.category === selectedCategory);
+
+      // Update entry count
+      entryCount.textContent = `Total Entries: ${filteredData.length}`;
 
       filteredData.forEach(entry => {
         const row = document.createElement('tr');
@@ -257,7 +276,7 @@
       chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: data.map(() => ''), // Empty labels for X-axis
+          labels: data.map(() => ''),
           datasets: [
             {
               label: 'Category Rank',
@@ -299,7 +318,7 @@
                 color: '#333',
                 font: { size: 12 }
               },
-              ticks: { display: false } // Hide X-axis labels
+              ticks: { display: false }
             }
           },
           plugins: {
@@ -317,8 +336,8 @@
       });
     }
 
-    // Fetch and display data on page load
     document.addEventListener('DOMContentLoaded', fetchAndDisplayData);
   </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9353d2205ccdad9e',t:'MTc0NTQ3OTA0NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
