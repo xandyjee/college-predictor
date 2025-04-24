@@ -220,7 +220,20 @@
         }
 
         errorMessage.style.display = 'none';
-        allRankData = Object.values(data).sort((a, b) => a.categoryRank - b.categoryRank);
+        // Convert data to array and remove duplicates based on category and openRank
+        const rawData = Object.values(data);
+        const seen = new Set();
+        allRankData = rawData
+          .filter(entry => {
+            const key = `${entry.category}|${entry.openRank}`;
+            if (seen.has(key)) {
+              return false;
+            }
+            seen.add(key);
+            return true;
+          })
+          .sort((a, b) => a.categoryRank - b.categoryRank);
+
         const categories = [...new Set(allRankData.map(entry => entry.category))].sort();
         const currentCategory = categoryFilter.value;
 
