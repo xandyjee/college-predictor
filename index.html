@@ -230,6 +230,15 @@
       margin-bottom: 16px;
       display: none;
     }
+    .warning {
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 12px;
+      border: 1px solid #ffeeba;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
 
     @media (min-width: 769px) {
       .app-container {
@@ -383,6 +392,9 @@
       </div>
 
       <div class="step" id="step3">
+        <p class="warning" id="ews-warning" style="display: none;">
+          The ranks mentioned below are as per the official data released by JoSAA. However, there seem to be some discrepancies in a few cases, as the closing ranks shown for the EWS category in some colleges are actually the open category ranks, not the EWS ranks. We kindly request you to keep this in mind while referring to the data. We will update the information as soon as we receive official confirmation from the concerned authorities.
+                </p>
         <label for="rank">Enter Your JEE Category Rank:</label>
         <input type="number" id="rank" placeholder="Enter your category rank" />
         <p class="error" id="rank-error">Please enter a valid rank.</p>
@@ -407,99 +419,96 @@
     let currentCollegeFilter = '';
     let currentProgramFilter = '';
 
+    // Carousel JavaScript for continuous right-only sliding with touch/swipe support
+    let currentSlide = 0;
+    const carouselInner = document.querySelector('.carousel-inner');
+    const slides = document.querySelectorAll('.carousel-item');
+    const totalSlides = slides.length;
+    let isDragging = false;
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let autoSlide;
 
+    // Ensure we have at least 2 slides
+    if (totalSlides < 2) {
+      console.error('Carousel requires at least 2 slides');
+    }
 
-// Carousel JavaScript for continuous right-only sliding with touch/swipe support
-let currentSlide = 0;
-const carouselInner = document.querySelector('.carousel-inner');
-const slides = document.querySelectorAll('.carousel-item');
-const totalSlides = slides.length;
-let isDragging = false;
-let touchStartX = 0;
-let touchEndX = 0;
-let autoSlide;
+    // Clone slides for seamless looping
+    document.addEventListener('DOMContentLoaded', () => {
+      // Clone the first set of slides and append them
+      slides.forEach(slide => {
+        const clone = slide.cloneNode(true);
+        carouselInner.appendChild(clone);
+      });
 
-// Ensure we have at least 2 slides
-if (totalSlides < 2) {
-  console.error('Carousel requires at least 2 slides');
-}
-
-// Clone slides for seamless looping
-document.addEventListener('DOMContentLoaded', () => {
-  // Clone the first set of slides and append them
-  slides.forEach(slide => {
-    const clone = slide.cloneNode(true);
-    carouselInner.appendChild(clone);
-  });
-
-  // Set initial position
-  updateCarouselPosition(false);
-});
-
-// Update carousel position
-function updateCarouselPosition(useTransition = true) {
-  carouselInner.style.transition = useTransition ? 'transform 0.5s ease' : 'none';
-  carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
-}
-
-// Move to the next slide (right)
-function moveRight() {
-  currentSlide++;
-  updateCarouselPosition(true);
-
-  // Reset to start when reaching the cloned slides
-  if (currentSlide >= totalSlides) {
-    setTimeout(() => {
-      carouselInner.style.transition = 'none';
-      currentSlide = 0;
+      // Set initial position
       updateCarouselPosition(false);
-    }, 500); // Match transition duration
-  }
-}
+    });
 
-// Touch/swipe event handlers
-carouselInner.addEventListener('touchstart', (e) => {
-  touchStartX = e.changedTouches[0].screenX;
-  isDragging = true;
-  clearInterval(autoSlide); // Pause auto-slide
-  carouselInner.style.transition = 'none';
-});
+    // Update carousel position
+    function updateCarouselPosition(useTransition = true) {
+      carouselInner.style.transition = useTransition ? 'transform 0.5s ease' : 'none';
+      carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
+    }
 
-carouselInner.addEventListener('touchmove', (e) => {
-  if (!isDragging) return;
-  touchEndX = e.changedTouches[0].screenX;
-  const deltaX = touchEndX - touchStartX;
-  const translateX = -currentSlide * 100 + (deltaX / carouselInner.offsetWidth) * 100;
-  carouselInner.style.transform = `translateX(${translateX}%)`;
-});
+    // Move to the next slide (right)
+    function moveRight() {
+      currentSlide++;
+      updateCarouselPosition(true);
 
-carouselInner.addEventListener('touchend', () => {
-  if (!isDragging) return;
-  isDragging = false;
-  const deltaX = touchEndX - touchStartX;
+      // Reset to start when reaching the cloned slides
+      if (currentSlide >= totalSlides) {
+        setTimeout(() => {
+          carouselInner.style.transition = 'none';
+          currentSlide = 0;
+          updateCarouselPosition(false);
+        }, 500); // Match transition duration
+      }
+    }
 
-  // Only allow right swipe (move to next slide)
-  if (deltaX < -50) {
-    moveRight();
-  } else {
-    // Snap back to current slide
-    updateCarouselPosition(true);
-  }
+    // Touch/swipe event handlers
+    carouselInner.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      isDragging = true;
+      clearInterval(autoSlide); // Pause auto-slide
+      carouselInner.style.transition = 'none';
+    });
 
-  // Resume auto-slide
-  autoSlide = setInterval(moveRight, 3500);
-});
+    carouselInner.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      touchEndX = e.changedTouches[0].screenX;
+      const deltaX = touchEndX - touchStartX;
+      const translateX = -currentSlide * 100 + (deltaX / carouselInner.offsetWidth) * 100;
+      carouselInner.style.transform = `translateX(${translateX}%)`;
+    });
 
-// Prevent default scrolling during swipe
-carouselInner.addEventListener('touchmove', (e) => {
-  if (isDragging) {
-    e.preventDefault();
-  }
-});
+    carouselInner.addEventListener('touchend', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      const deltaX = touchEndX - touchStartX;
 
-// Start auto-sliding
-autoSlide = setInterval(moveRight, 3500);
+      // Only allow right swipe (move to next slide)
+      if (deltaX < -50) {
+        moveRight();
+      } else {
+        // Snap back to current slide
+        updateCarouselPosition(true);
+      }
 
+      // Resume auto-slide
+      autoSlide = setInterval(moveRight, 3500);
+    });
+
+    // Prevent default scrolling during swipe
+    carouselInner.addEventListener('touchmove', (e) => {
+      if (isDragging) {
+        e.preventDefault();
+      }
+    });
+
+    // Start auto-sliding
+    autoSlide = setInterval(moveRight, 3500);
 
     async function loadCSV(file) {
       try {
@@ -581,6 +590,7 @@ autoSlide = setInterval(moveRight, 3500);
 
     function goToPrev(step) {
       document.getElementById('result').innerHTML = '';
+      document.getElementById('ews-warning').style.display = 'none'; // Hide warning
       document.querySelectorAll('.step').forEach((el, idx) => {
         el.style.opacity = '0';
         el.classList.toggle('active', idx === step);
@@ -599,6 +609,7 @@ autoSlide = setInterval(moveRight, 3500);
       document.getElementById('openRankSection').classList.add('hidden');
       if (document.getElementById('college')) document.getElementById('college').value = '';
       document.getElementById('hsCollege').classList.add('hidden');
+      document.getElementById('ews-warning').style.display = 'none'; // Hide warning
       allData = [];
       filteredData = [];
       currentCollegeFilter = '';
@@ -658,6 +669,7 @@ autoSlide = setInterval(moveRight, 3500);
       const gender = document.getElementById('gender').value;
       const selectedCollege = document.getElementById('college')?.value || '';
       const resultDiv = document.getElementById('result');
+      const ewsWarning = document.getElementById('ews-warning');
       resultDiv.innerHTML = '';
 
       if (isNaN(rank)) {
@@ -670,6 +682,17 @@ autoSlide = setInterval(moveRight, 3500);
         return;
       }
       document.getElementById('open-rank-error').style.display = 'none';
+
+      // Show warning if HS, NIT Calicut, and EWS are selected
+      if (
+        quota === 'HS' &&
+        selectedCollege === 'National Institute of Technology Calicut' &&
+        category === 'EWS'
+      ) {
+        ewsWarning.style.display = 'block';
+      } else {
+        ewsWarning.style.display = 'none';
+      }
 
       storeRankData(category, rank, openRank);
 
