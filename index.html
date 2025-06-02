@@ -352,31 +352,43 @@
       </div>
     </div>
     <div class="app-header">
-      <h1>JEE Main College Predictor 2025</h1>
+      <h1>JEE College Predictor 2025</h1>
       <p class="subtitle">Based on JoSAA 2024 Round 5 Cutoff Data</p>
     </div>
     <div class="content">
-      <div class="step active" id="step1">
-        <label for="quota">Select Quota:</label>
-        <select id="quota">
-          <option value="">-- Select Quota --</option>
-          <option value="HS">Home State (HS)</option>
-          <option value="OS">Other State (OS)</option>
+      <div class="step active" id="step0">
+        <label for="exam-type">Select Exam :</label>
+        <select id="exam-type">
+          <option value="">-- Select Exam  --</option>
+          <option value="main">JEE Main</option>
+          <option value="advanced">JEE Advanced</option>
         </select>
-        <p class="error" id="quota-error">This field is required.</p>
+        <p class="error" id="exam-type-error">This field is required.</p>
         <div class="button-group">
           <div></div>
-          <button class="btn btn-next" onclick="goToNext(1)">Next <span>→</span></button>
+          <button class="btn btn-next" onclick="goToNext(0)">Next <span>→</span></button>
         </div>
       </div>
 
-      <div class="step" id="step2">
-        <div id="hsCollege" class="hidden">
-          <label for="college">Select College:</label>
-          <select id="college"></select>
+      <div class="step" id="step1">
+        <div id="mainQuota" class="hidden">
+          <label for="quota">Select Quota:</label>
+          <select id="quota">
+            <option value="">-- Select Quota --</option>
+            <option value="HS">Home State (HS)</option>
+            <option value="OS">Other State (OS)</option>
+          </select>
+          <p class="error" id="quota-error">This field is required.</p>
         </div>
         <label for="category">Select Category:</label>
-        <select id="category" onchange="updateRankInputs()"></select>
+        <select id="category" onchange="updateRankInputs()">
+          <option value="">-- Select Category --</option>
+          <option value="OPEN">OPEN</option>
+          <option value="OBC-NCL">OBC-NCL</option>
+          <option value="SC">SC</option>
+          <option value="ST">ST</option>
+          <option value="EWS">EWS</option>
+        </select>
         <p class="error" id="category-error">This field is required.</p>
         <label for="gender">Select Gender:</label>
         <select id="gender">
@@ -387,14 +399,15 @@
         <p class="error" id="gender-error">This field is required.</p>
         <div class="button-group">
           <button class="btn btn-prev" onclick="goToPrev(0)"><span>←</span> Previous</button>
-          <button class="btn btn-next" onclick="goToNext(2)">Next <span>→</span></button>
+          <button class="btn btn-next" onclick="goToNext(1)">Next <span>→</span></button>
         </div>
       </div>
 
-      <div class="step" id="step3">
-        <p class="warning" id="ews-warning" style="display: none;">
-          The ranks mentioned below are as per the official data released by JoSAA. However, there seem to be some discrepancies in a few cases, as the closing ranks shown for the EWS category in some colleges are actually the open category ranks, not the EWS ranks. We kindly request you to keep this in mind while referring to the data. We will update the information as soon as we receive official confirmation from the concerned authorities.
-                </p>
+      <div class="step" id="step2">
+        <div id="hsCollege" class="hidden">
+          <label for="college">Select College:</label>
+          <select id="college"></select>
+        </div>
         <label for="rank">Enter Your JEE Category Rank:</label>
         <input type="number" id="rank" placeholder="Enter your category rank" />
         <p class="error" id="rank-error">Please enter a valid rank.</p>
@@ -536,36 +549,75 @@
       const category = document.getElementById('category').value;
       const rankInput = document.getElementById('rank');
       const openRankSection = document.getElementById('openRankSection');
-      if (category && category !== 'OPEN') {
+      const rankLabel = document.querySelector('label[for="rank"]');
+      
+      if (category === 'OPEN') {
+        rankLabel.textContent = 'Enter Your JEE Open Rank:';
+        rankInput.placeholder = 'Enter your open rank';
+        openRankSection.classList.add('hidden');
+      } else if (category && category !== 'OPEN') {
+        rankLabel.textContent = 'Enter Your JEE Category Rank:';
+        rankInput.placeholder = `Enter your ${category} rank`;
         openRankSection.classList.remove('hidden');
       } else {
+        rankLabel.textContent = 'Enter Your JEE Category Rank:';
+        rankInput.placeholder = 'Enter your rank';
         openRankSection.classList.add('hidden');
       }
-      rankInput.placeholder = category ? `Enter your ${category} rank` : "Enter your rank";
     }
 
     async function goToNext(step) {
-      if (step === 1) {
-        const quota = document.getElementById('quota').value;
-        if (!quota) {
-          document.getElementById('quota-error').style.display = 'block';
+      if (step === 0) {
+        const examType = document.getElementById('exam-type').value;
+        if (!examType) {
+          document.getElementById('exam-type-error').style.display = 'block';
           return;
         }
-        document.getElementById('quota-error').style.display = 'none';
-        const file = quota === 'HS' ? '2024Round5_HS_sorted.csv' : '2024Round5_OS_sorted.csv';
-        allData = await loadCSV(file);
-        if (allData.length === 0) return;
-        populateCategories(allData);
-        if (quota === 'HS') {
-          document.getElementById('hsCollege').classList.remove('hidden');
-          populateColleges(allData);
+        document.getElementById('exam-type-error').style.display = 'none';
+        
+        // Update title based on exam type
+        const title = document.querySelector('.app-header h1');
+        const subtitle = document.querySelector('.app-header .subtitle');
+        if (examType === 'main') {
+          title.textContent = 'JEE Main College Predictor 2025';
+          subtitle.textContent = 'Based on JoSAA 2024 Round 5 Cutoff Data';
+          document.getElementById('mainQuota').classList.remove('hidden');
         } else {
-          document.getElementById('hsCollege').classList.add('hidden');
+          title.textContent = 'JEE Advanced College Predictor 2025';
+          subtitle.textContent = 'Based on JoSAA 2024 Round 5 Cutoff Data';
+          document.getElementById('mainQuota').classList.add('hidden');
+          // Load IIT data immediately when JEE Advanced is selected
+          try {
+            const response = await fetch('iitround5.csv');
+            if (!response.ok) throw new Error('Failed to load IIT data');
+            const text = await response.text();
+            const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+            allData = parsed.data.map(row => ({
+              Institute: row["Institute"]?.trim(),
+              Program: row["Academic Program Name"]?.trim(),
+              Category: row["Seat Type"]?.trim(),
+              Gender: row["Gender"]?.trim(),
+              ClosingRank: parseInt(row["Closing Rank"]),
+              Quota: "AI"
+            })).filter(row => !isNaN(row.ClosingRank));
+          } catch (error) {
+            console.error('Error loading IIT data:', error);
+            return;
+          }
         }
-      } else if (step === 2) {
+
+        // Show next step
+        document.querySelectorAll('.step').forEach((el, idx) => {
+          el.style.opacity = '0';
+          el.classList.toggle('active', idx === step + 1);
+          if (idx === step + 1) setTimeout(() => el.style.opacity = '1', 10);
+        });
+      } else if (step === 1) {
+        const examType = document.getElementById('exam-type').value;
         const category = document.getElementById('category').value;
         const gender = document.getElementById('gender').value;
         let hasError = false;
+
         if (!category) {
           document.getElementById('category-error').style.display = 'block';
           hasError = true;
@@ -578,47 +630,101 @@
         } else {
           document.getElementById('gender-error').style.display = 'none';
         }
+
+        if (examType === 'main') {
+          const quota = document.getElementById('quota').value;
+          if (!quota) {
+            document.getElementById('quota-error').style.display = 'block';
+            hasError = true;
+          } else {
+            document.getElementById('quota-error').style.display = 'none';
+            const file = quota === 'HS' ? '2024Round5_HS_sorted.csv' : '2024Round5_OS_sorted.csv';
+            allData = await loadCSV(file);
+            if (allData.length === 0) return;
+            if (quota === 'HS') {
+              document.getElementById('hsCollege').classList.remove('hidden');
+              populateColleges(allData);
+            } else {
+              document.getElementById('hsCollege').classList.add('hidden');
+            }
+          }
+        }
+
         if (hasError) return;
         updateRankInputs();
+
+        // Show next step
+        document.querySelectorAll('.step').forEach((el, idx) => {
+          el.style.opacity = '0';
+          el.classList.toggle('active', idx === step + 1);
+          if (idx === step + 1) setTimeout(() => el.style.opacity = '1', 10);
+        });
       }
-      document.querySelectorAll('.step').forEach((el, idx) => {
-        el.style.opacity = '0';
-        el.classList.toggle('active', idx === step);
-        if (idx === step) setTimeout(() => el.style.opacity = '1', 10);
-      });
     }
 
     function goToPrev(step) {
       document.getElementById('result').innerHTML = '';
-      document.getElementById('ews-warning').style.display = 'none'; // Hide warning
-      document.querySelectorAll('.step').forEach((el, idx) => {
-        el.style.opacity = '0';
-        el.classList.toggle('active', idx === step);
-        if (idx === step) setTimeout(() => el.style.opacity = '1', 10);
-      });
+      if (step === 0) {
+        // If going back from step 1, return to exam type selection
+        document.querySelectorAll('.step').forEach((el, idx) => {
+          el.style.opacity = '0';
+          el.classList.toggle('active', idx === 0);
+          if (idx === 0) setTimeout(() => el.style.opacity = '1', 10);
+        });
+      } else {
+        document.querySelectorAll('.step').forEach((el, idx) => {
+          el.style.opacity = '0';
+          el.classList.toggle('active', idx === step);
+          if (idx === step) setTimeout(() => el.style.opacity = '1', 10);
+        });
+      }
     }
 
     function goToHome() {
-      document.getElementById('result').innerHTML = '';
+      // Clear all form fields
+      document.getElementById('exam-type').value = '';
       document.getElementById('quota').value = '';
       document.getElementById('category').value = '';
       document.getElementById('gender').value = '';
       document.getElementById('rank').value = '';
       document.getElementById('open-rank').value = '';
       document.getElementById('rank').placeholder = "Enter your rank";
+      
+      // Hide all conditional sections
       document.getElementById('openRankSection').classList.add('hidden');
       if (document.getElementById('college')) document.getElementById('college').value = '';
       document.getElementById('hsCollege').classList.add('hidden');
-      document.getElementById('ews-warning').style.display = 'none'; // Hide warning
+      document.getElementById('mainQuota').classList.add('hidden');
+      
+      // Clear all data arrays and filters
       allData = [];
       filteredData = [];
       currentCollegeFilter = '';
       currentProgramFilter = '';
+      
+      // Reset title and subtitle
+      const title = document.querySelector('.app-header h1');
+      const subtitle = document.querySelector('.app-header .subtitle');
+      title.textContent = 'JEE College Predictor 2025';
+      subtitle.textContent = 'Based on JoSAA 2024 Round 5 Cutoff Data';
+      
+      // Clear results
+      document.getElementById('result').innerHTML = '';
+      
+      // Hide all steps except the first one
       document.querySelectorAll('.step').forEach((el, idx) => {
-        el.style.opacity = '0';
-        el.classList.toggle('active', idx === 0);
-        if (idx === 0) setTimeout(() => el.style.opacity = '1', 10);
+        el.classList.remove('active');
+        el.style.display = 'none';
       });
+      
+      // Show only the first step
+      const firstStep = document.getElementById('step0');
+      firstStep.classList.add('active');
+      firstStep.style.display = 'block';
+      firstStep.style.opacity = '1';
+
+      // Refresh the URL without reloading the page
+      window.history.pushState({}, '', window.location.pathname);
     }
 
     function populateColleges(data) {
@@ -646,31 +752,32 @@
     }
 
     function storeRankData(category, rank, openRank) {
-      if (category !== 'OPEN' && rank && openRank) {
-        const data = {
-          category: category,
-          categoryRank: parseInt(rank),
-          openRank: parseInt(openRank),
-          timestamp: Date.now()
-        };
-        window.push(window.ref(window.db, 'rankData'), data)
-          .then(() => console.log('Rank data stored successfully'))
-          .catch(error => console.error('Error storing rank data:', error));
-      } else if (category === 'OPEN') {
-        console.log('OPEN category selected; data not stored in Firebase.');
-      }
+        const examType = document.getElementById('exam-type').value;
+        // Only store data for JEE Main
+        if (examType === 'main' && category !== 'OPEN' && rank && openRank) {
+            const data = {
+                category: category,
+                categoryRank: parseInt(rank),
+                openRank: parseInt(openRank),
+                timestamp: Date.now()
+            };
+            window.push(window.ref(window.db, 'rankData'), data)
+                .then(() => console.log('Rank data stored successfully'))
+                .catch(error => console.error('Error storing rank data:', error));
+        } else if (category === 'OPEN') {
+            console.log('OPEN category selected; data not stored in Firebase.');
+        } else if (examType === 'advanced') {
+            console.log('JEE Advanced selected; data not stored in Firebase.');
+        }
     }
 
-    function predictSeats() {
+    async function predictSeats() {
+      const examType = document.getElementById('exam-type').value;
       const rank = parseInt(document.getElementById('rank').value);
       const openRank = parseInt(document.getElementById('open-rank').value) || null;
-      const quota = document.getElementById('quota').value;
       const category = document.getElementById('category').value;
       const gender = document.getElementById('gender').value;
-      const selectedCollege = document.getElementById('college')?.value || '';
       const resultDiv = document.getElementById('result');
-      const ewsWarning = document.getElementById('ews-warning');
-      resultDiv.innerHTML = '';
 
       if (isNaN(rank)) {
         document.getElementById('rank-error').style.display = 'block';
@@ -683,25 +790,26 @@
       }
       document.getElementById('open-rank-error').style.display = 'none';
 
-      // Show warning if HS, NIT Calicut, and EWS are selected
-      if (
-        quota === 'HS' &&
-        selectedCollege === 'National Institute of Technology Calicut' &&
-        category === 'EWS'
-      ) {
-        ewsWarning.style.display = 'block';
-      } else {
-        ewsWarning.style.display = 'none';
-      }
-
       storeRankData(category, rank, openRank);
 
-      filteredData = allData.filter(row =>
-        row.ClosingRank >= rank &&
-        row.Category === category &&
-        row.Gender === gender &&
-        (quota === 'OS' || !selectedCollege || row.Institute === selectedCollege)
-      ).sort((a, b) => a.ClosingRank - b.ClosingRank);
+      if (examType === 'main') {
+        const quota = document.getElementById('quota').value;
+        const selectedCollege = document.getElementById('college')?.value || '';
+        filteredData = allData.filter(row =>
+          row.ClosingRank >= rank &&
+          row.Category === category &&
+          row.Gender === gender &&
+          (quota === 'OS' || !selectedCollege || row.Institute === selectedCollege)
+        ).sort((a, b) => a.ClosingRank - b.ClosingRank);
+      } else {
+        // JEE Advanced prediction logic
+        filteredData = allData.filter(row =>
+          row.ClosingRank >= rank &&
+          row.Category === category &&
+          row.Gender === gender &&
+          row.Quota === "AI"
+        ).sort((a, b) => a.ClosingRank - b.ClosingRank);
+      }
 
       currentCollegeFilter = '';
       currentProgramFilter = '';
@@ -722,7 +830,7 @@
 
       let html = `
         <div class="button-group">
-          <button class="btn btn-search-again" onclick="goToHome()">Search Again</button>
+          <button class="btn btn-search-again" onclick="goToHome()" style="display:None">Search Again</button>
           <button class="btn btn-download-pdf" onclick="downloadPDF()">Download PDF</button>
         </div>
         <br>
@@ -756,6 +864,15 @@
       });
       html += `</table>`;
       resultDiv.innerHTML = html;
+
+      // Ensure the Search Again button is properly bound
+      const searchAgainBtn = resultDiv.querySelector('.btn-search-again');
+      if (searchAgainBtn) {
+        searchAgainBtn.onclick = function(e) {
+          e.preventDefault();
+          goToHome();
+        };
+      }
     }
 
     function applyFilters() {
